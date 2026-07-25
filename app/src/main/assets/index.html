@@ -7,15 +7,13 @@
   <script src="./phaser.min.js"></script>
   <script src="./game_bundled.js"></script>
   <style>
-    body {
-      display: grid;
-      height: 100vh;
-      background: black;
-      padding-top: 5px;
-    }
+    *{margin:0;padding:0}
+    body{background:#000;width:100vw;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    #game canvas{max-width:100vw;max-height:100vh;image-rendering:pixelated;image-rendering:crisp-edges}
   </style>
 </head>
 <body>
   <div id="game"></div>
+<script>document.addEventListener("touchstart",function(e){},false);</script>
 </body>
 </html>

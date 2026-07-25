@@ -3,9 +3,16 @@
 import { createAnimations } from "./animations.js"
 
 const config = {
-  type: Phaser.AUTO, // webgl, canvas
+  type: Phaser.AUTO,
   width: 256,
   height: 244,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
+  render: {
+    pixelArt: true,
+  },
   backgroundColor: '#049cd8',
   parent: 'game',
   physics: {
