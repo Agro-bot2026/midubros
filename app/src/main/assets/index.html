@@ -2,18 +2,84 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Super Midu Bros</title>
   <script src="./phaser.min.js"></script>
-  <script src="./game_bundled.js"></script>
   <style>
-    *{margin:0;padding:0}
-    body{background:#000;width:100vw;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+    html,body{background:#000;width:100%;height:100%;overflow:hidden}
+    body{display:flex;align-items:center;justify-content:center}
     #game canvas{max-width:100vw;max-height:100vh;image-rendering:pixelated;image-rendering:crisp-edges}
+
+    /* Controles tactiles estilo Free Fire (semi-invisibles) */
+    .ctrl{position:fixed;z-index:1000;display:flex;align-items:center;justify-content:center;
+      border-radius:50%;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.25);
+      color:rgba(255,255,255,0.6);font-size:28px;font-weight:bold;touch-action:none;
+      backdrop-filter:blur(2px);transition:background .1s}
+    .ctrl:active,.ctrl.pressed{background:rgba(255,255,255,0.35);color:#fff}
+    #btnLeft{left:20px;bottom:30px;width:64px;height:64px}
+    #btnRight{left:100px;bottom:30px;width:64px;height:64px}
+    #btnJump{right:24px;bottom:36px;width:82px;height:82px;background:rgba(220,50,50,0.18);border-color:rgba(255,80,80,0.3)}
+    #btnJump:active,#btnJump.pressed{background:rgba(220,50,50,0.45)}
+    #rotateMsg{position:fixed;inset:0;background:#000;color:#fff;display:none;
+      align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:2000;font-family:sans-serif;font-size:15px;text-align:center;padding:30px}
+    #rotateMsg .icon{font-size:44px;animation:rot 1.5s ease-in-out infinite}
+    @keyframes rot{0%,100%{transform:rotate(0)}50%{transform:rotate(90deg)}}
   </style>
 </head>
 <body>
   <div id="game"></div>
-<script>document.addEventListener("touchstart",function(e){},false);</script>
+
+  <!-- Controles tactiles -->
+  <div class="ctrl" id="btnLeft">&#9664;</div>
+  <div class="ctrl" id="btnRight">&#9654;</div>
+  <div class="ctrl" id="btnJump">&#9650;</div>
+
+  <div id="rotateMsg"><div class="icon">&#128241;</div><div>Gira tu telefono<br>para jugar mejor</div></div>
+
+  <script src="./game_bundled.js"></script>
+  <script>
+    window.touchControls = { left:false, right:false, jump:false };
+
+    function bindBtn(id, key){
+      var el = document.getElementById(id);
+      function on(e){ e.preventDefault(); window.touchControls[key]=true; el.classList.add('pressed'); unlockAudio(); }
+      function off(e){ e.preventDefault(); window.touchControls[key]=false; el.classList.remove('pressed'); }
+      el.addEventListener('touchstart', on, {passive:false});
+      el.addEventListener('touchend', off, {passive:false});
+      el.addEventListener('touchcancel', off, {passive:false});
+      el.addEventListener('mousedown', on);
+      el.addEventListener('mouseup', off);
+      el.addEventListener('mouseleave', off);
+    }
+    bindBtn('btnLeft','left');
+    bindBtn('btnRight','right');
+    bindBtn('btnJump','jump');
+
+    // Desbloquear audio en el primer toque (requisito de navegadores moviles)
+    var audioUnlocked = false;
+    function unlockAudio(){
+      if(audioUnlocked) return;
+      audioUnlocked = true;
+      try {
+        if(window.game && window.game.sound && window.game.sound.context){
+          window.game.sound.context.resume();
+        }
+        // Tambien buscar cualquier AudioContext de Phaser
+        var ev = new Event('pointerdown');
+        document.dispatchEvent(ev);
+      } catch(e){}
+    }
+    document.body.addEventListener('touchstart', unlockAudio, {once:false});
+    document.body.addEventListener('click', unlockAudio, {once:false});
+
+    // Aviso de rotacion desactivado (la app ya fuerza landscape)
+    function checkOrient(){
+      document.getElementById('rotateMsg').style.display = 'none';
+    }
+    window.addEventListener('resize', checkOrient);
+    window.addEventListener('orientationchange', function(){ setTimeout(checkOrient,300); });
+    checkOrient();
+  </script>
 </body>
 </html>

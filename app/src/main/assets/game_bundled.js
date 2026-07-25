@@ -56,7 +56,7 @@ const config = {
   }
 }
 
-new Phaser.Game(config)
+window.game = new Phaser.Game(config)
 // this -> game -> el juego que estamos construyendo
 
 function preload () {
@@ -111,16 +111,29 @@ function create () {
   createAnimations(this)
 
   this.keys = this.input.keyboard.createCursorKeys()
+
+  // Unlock audio on first touch/click (mobile requirement)
+  this.input.once('pointerdown', () => {
+    if (this.sound.context && this.sound.context.state === 'suspended') {
+      this.sound.context.resume()
+    }
+  })
 }
 
 function update () { // 3. continuamente
   if (this.mario.isDead) return
 
-  if (this.keys.left.isDown) {
+  // Combinar teclado + controles tactiles (window.touchControls)
+  var tc = window.touchControls || {}
+  var goLeft = this.keys.left.isDown || tc.left
+  var goRight = this.keys.right.isDown || tc.right
+  var goJump = this.keys.up.isDown || tc.jump
+
+  if (goLeft) {
     this.mario.anims.play('mario-walk', true)
     this.mario.x -= 2
     this.mario.flipX = true
-  } else if (this.keys.right.isDown) {
+  } else if (goRight) {
     this.mario.anims.play('mario-walk', true)
     this.mario.x += 2
     this.mario.flipX = false
@@ -128,7 +141,7 @@ function update () { // 3. continuamente
     this.mario.anims.play('mario-idle', true)
   }
 
-  if (this.keys.up.isDown && this.mario.body.touching.down) {
+  if (goJump && this.mario.body.touching.down) {
     this.mario.setVelocityY(-300)
     this.mario.anims.play('mario-jump', true)
   }
