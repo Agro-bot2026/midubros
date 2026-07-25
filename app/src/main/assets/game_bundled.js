@@ -1,7 +1,5 @@
-
-// Super Midu Bros - Bundled for WebView
 (function(){
-function createAnimations = (game) => {
+function createAnimations(game){
   game.anims.create({
     key: 'mario-walk',
     frames: game.anims.generateFrameNumbers(
@@ -29,7 +27,6 @@ function createAnimations = (game) => {
 }
 
 /* global Phaser */
-
 
 
 const config = {
